@@ -20,7 +20,7 @@
             
             if (mysqli_num_rows($g) == 0){
                 $info = array(
-                    'avatar' => "images/chat-1.jpg",
+                    'avatar' => "images/profile-pic.png",
                     'friends' => array()
                 );
                 $info_json = (json_encode($info,JSON_UNESCAPED_UNICODE));

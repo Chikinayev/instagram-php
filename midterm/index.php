@@ -36,6 +36,7 @@
     }
     
     ?>
+    
 <div style="margin-bottom:80px;"> 
     <nav class="navbar" >
         <div class="nav-wrapper">
@@ -47,13 +48,29 @@
                 <img src="img/add.PNG" class="icon" alt="">
                 <img src="img/explore.PNG" class="icon" alt="">
                 <img src="img/like.PNG" class="icon" alt="">
-                <div class="icon user-profile" <?php ?>></div>
+                <div class="icon user-profile"></div>
             </div>
         </div>
     </nav>
 
 </div>
-
+<?php
+        $user = null;
+        $info = "";
+        if(isset($_GET['id'])){
+            $user= mysqli_fetch_assoc(mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_GET['id'])));
+            $info = json_decode($user['info_json']);
+        }else{
+            $q = mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_SESSION['user']['id']));
+            if (mysqli_num_rows($q) == 0){
+                echo("<script>document.location.href  = '/auth.php'</script>");
+                 die;
+            }
+            $user = mysqli_fetch_assoc(mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_SESSION['user']['id'])));
+        
+            $info = json_decode($user['info_json']);
+        } 
+    ?>
 
 <section class="main">
     <div class="wrapper">
@@ -153,11 +170,11 @@
     <div class="right-col" style="margin-left:2%;">
         <div class="profile-card">
             <div class="profile-pic">
-                <img src="img/profile-pic.png" alt="">
+                <img src="<?php echo("$info->avatar")?>" alt="">
             </div>
-            <div><a href="index5.html">
-                <p class="username">Altynbek</p>
-                <p class="sub-text">Altynbek Musakhan</p>
+            <div><a href="myprofile.php">
+                <p class="username"><?php echo($user['name'])?></p>
+                <p class="sub-text"><?php echo($user['login'])?></p>
             </a>
                 
             </div>

@@ -1,3 +1,19 @@
+<?php 
+    include("include/config.php");
+    if(isset($_GET['id'])){
+        $user= mysqli_fetch_assoc(mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_GET['id'])));
+        $info = json_decode($user['info_json']);
+    }else{
+        $q = mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_SESSION['user']['id']));
+        if (mysqli_num_rows($q) == 0){
+            echo("<script>document.location.href  = '/auth.php'</script>");
+             die;
+        }
+        $user = mysqli_fetch_assoc(mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_SESSION['user']['id'])));
+    
+        $info = json_decode($user['info_json']);
+    } 
+?>
 <html>
     <head>
         <link rel="stylesheet"
@@ -6,23 +22,7 @@
     </head>
     <body>
 
-        <div style="margin-bottom:80px;"> 
-            <nav class="navbar" >
-                <div class="nav-wrapper">
-                    <img src="img/logo.PNG" class="brand-img" alt="">
-                    <input type="text" class="search-box" placeholder="search">
-                    <div class="nav-items">
-                        <img src="img/home.PNG" class="icon" alt="">
-                        <a href="messages.html"><img src="img/messenger.PNG" class="icon" alt=""></a>
-                        <img src="img/add.PNG" class="icon" alt="">
-                        <a href="search.html"><img src="img/explore.PNG" class="icon" alt=""></a>
-                        <img src="img/like.PNG" class="icon" alt="">
-                        <div class="icon user-profile"></div>
-                    </div>
-                </div>
-            </nav>
-        
-        </div>
+        <?php include("nav.php")?>
 
         <header>
 
@@ -32,13 +32,13 @@
         
                     <div class="profile-image">
         
-                        <img src="img/profile-pic.png" alt="">
+                        <img style="height:220px" src="<?php echo($info->avatar);?>" alt="">
         
                     </div>
         
                     <div class="profile-user-settings">
         
-                        <h1 class="profile-user-name">Altynbek</h1>
+                        <h1 class="profile-user-name"><?php echo($user['name'])?></h1>
         
                         <button class="btn profile-edit-btn">Edit Profile</button>
         
