@@ -21,7 +21,7 @@
             if (mysqli_num_rows($g) == 0){
                 $info = array(
                     'avatar' => "images/profile-pic.png",
-                    'followers' => array(),
+                    'followers' =>array(),
                     'followings'=>array()
                 );
                 $info_json = (json_encode($info,JSON_UNESCAPED_UNICODE));

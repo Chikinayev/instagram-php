@@ -1,9 +1,11 @@
 <?php 
     include("include/config.php"); 
-    if (isset($_GET['exit'])){
+   
+    if (isset($_GET['logout'])) {
+        session_destroy();
         unset($_SESSION['user']);
-     } 
-    
+        header("location: auth.php");
+    }
     
     if (!isset($_SESSION['user'])){
         header('Location: /midterm/auth.php');
@@ -20,9 +22,7 @@
 
 <body>
         
-<?php if (isset($_GET['exit'])){
-       unset($_SESSION['user']);
-    } 
+<?php 
     $check =  mysqli_query($connections, "SELECT * FROM `pushes` WHERE (`userid`={$_SESSION['user']['id']})");
     if (mysqli_num_rows($check) != 0){
         ?>
@@ -45,16 +45,17 @@
             <div class="nav-items">
                 <img src="img/home.PNG" class="icon" alt="">
                 <img src="img/messenger.PNG" class="icon" alt="">
-                <img src="img/add.PNG" class="icon" alt="">
+                <a href="postForm.php"><img src="img/add.PNG" class="icon" alt=""></a>
                 <img src="img/explore.PNG" class="icon" alt="">
                 <img src="img/like.PNG" class="icon" alt="">
                 <a href="/midterm/myprofile.php"><div class="icon user-profile"></div></a>
+                <a href="index.php?logout='1'">exit</a>
             </div>
         </div>
     </nav>
 
 </div>
-<?php
+<?php   
         $user = null;
         $info = "";
         if(isset($_GET['id'])){
@@ -63,14 +64,17 @@
         }else{
             $q = mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_SESSION['user']['id']));
             if (mysqli_num_rows($q) == 0){
-                echo("<script>document.location.href  = '/auth.php'</script>");
+                echo("<script>document.location.href  = '/midterm/auth.php'</script>");
                  die;
             }
             $user = mysqli_fetch_assoc(mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_SESSION['user']['id'])));
         
             $info = json_decode($user['info_json']);
         } 
-    ?>
+        $ids = json_decode($user['posts_json']);
+          $currentinfo =json_decode($_SESSION['user']['info_json']); 
+?>
+    
 
 <section class="main">
     <div class="wrapper">
@@ -112,59 +116,64 @@
                 </div>
             </div>
         </div>
-                
-        <div class="post">
-            <div class="info">
-                <div class="user">
-                    <div class="profile-pic"><img src="img/cover_1.png" alt=""></div>
-                    <p class="username">Abai</p>
+
+        
+          
+        <?php for($i= count($ids)-1; $i >= 0; $i--){
+
+            $post_q = mysqli_query($connections,"SELECT * FROM `posts` WHERE `id`=".$ids[$i]);
+
+            if (mysqli_num_rows($post_q) == 0)
+                continue;
+
+            $post = mysqli_fetch_assoc($post_q);  
+            $fromuser = mysqli_fetch_assoc(mysqli_query($connections,"SELECT * FROM `users` WHERE `id`=".$post['fromuser']));
+            $images = json_decode($post['images_json']);
+            $formuserinfo = json_decode($fromuser['info_json']);
+
+        
+        ?>
+        <?php ?>
+            <div class="post">
+                <div class="info">
+                    <div class="user">
+                        <div class="profile-pic"><img src="<?php echo($formuserinfo->avatar);?>" alt=""></div>
+                        <p class="username"><?php echo($fromuser['login'])?></p>
+                    </div>
+                    <img src="img/option.PNG" class="options" alt="">
                 </div>
-                <img src="img/option.PNG" class="options" alt="">
-            </div>
-            <img src="img/cover_1.png" class="post-image" alt="">
-            <div class="post-content">
-                <div class="reaction-wrapper">
-                    <img src="img/like.PNG" class="icon" alt="">
-                    <img src="img/comment.PNG" class="icon" alt="">
-                    <img src="img/send.PNG" class="icon" alt="">
-                    <img src="img/save.PNG" class="save icon" alt="">
+                <?php if (count($images) == 0){?>
+                <p><?php
+                $timestamp = strtotime($post['date']);
+                echo date('H:i:s d/m/Y', $timestamp); ?>
+                </p>
+             <?php echo('</div>'); continue;}?>
+                <div class="post-content">
+                <div class="postImages">
+                    <?php 
+                        for ($j=0; $j < count($images); $j++) { ?>
+                        <div style="height:40vw; overflow:hidden;width:<?php echo (100/count($images));?>%;"><a style="width:100%;" href="<?php echo($images[$j]);?>" target_="_blank"> <img style="width:100%; cursor:pointer;" src="<?php echo($images[$j]);?>"></a></div>
+                        <?php
+                        }
+                    ?>
                 </div>
-                <p class="likes">1,012 likes</p>
-                <p class="description"><span>username </span> Lorem ipsum dolor sit amet consectetur, adipisicing elit. Pariatur tenetur veritatis placeat, molestiae impedit aut provident eum quo natus molestias?</p>
-                <p class="post-time">2 minutes ago</p>
-            </div>
-            <div class="comment-wrapper">
-                <img src="img/smile.PNG" class="icon" alt="">
-                <input type="text" class="comment-box" placeholder="Add a comment">
-                <button class="comment-btn">post</button>
-            </div>
-        </div>
-        <div class="post">
-            <div class="info">
-                <div class="user">
-                    <div class="profile-pic"><img src="img/Ayezov.png" alt=""></div>
-                    <p class="username">Ayezov</p>
+                    <div class="reaction-wrapper">
+                        <img src="img/like.PNG" class="icon" alt="">
+                        <img src="img/comment.PNG" class="icon" alt="">
+                        <img src="img/send.PNG" class="icon" alt="">
+                        <img src="img/save.PNG" class="save icon" alt="">
+                    </div>
+                    <p class="likes">1,012 likes</p>
+                    <p class="description" style="overflow:hidden;text-overflow: ellipsis;"><span><?php echo($fromuser['login'])?></span> <?php echo($post['message']); ?></p>
+                    <p class="post-time">2 minutes ago</p>
                 </div>
-                <img src="img/option.PNG" class="options" alt="">
-            </div>
-            <img src="img/Ayezov.png" class="post-image" alt="">
-            <div class="post-content">
-                <div class="reaction-wrapper">
-                    <img src="img/like.PNG" class="icon" alt="">
-                    <img src="img/comment.PNG" class="icon" alt="">
-                    <img src="img/send.PNG" class="icon" alt="">
-                    <img src="img/save.PNG" class="save icon" alt="">
+                <div class="comment-wrapper">
+                    <img src="img/smile.PNG" class="icon" alt="">
+                    <input type="text" class="comment-box" placeholder="Add a comment">
+                    <button class="comment-btn">post</button>
                 </div>
-                <p class="likes">1,012 likes</p>
-                <p class="description"><span>username </span> Lorem ipsum dolor sit amet consectetur, adipisicing elit. Pariatur tenetur veritatis placeat, molestiae impedit aut provident eum quo natus molestias?</p>
-                <p class="post-time">2 minutes ago</p>
             </div>
-            <div class="comment-wrapper">
-                <img src="img/smile.PNG" class="icon" alt="">
-                <input type="text" class="comment-box" placeholder="Add a comment">
-                <button class="comment-btn">post</button>
-            </div>
-        </div>
+        <?php } ?>   
         // +5 more post elements
     </div>
     <div class="right-col" style="margin-left:2%;">
@@ -236,5 +245,5 @@
     </div>
 
 </section>
-    </body>
+</body>
 </html>
