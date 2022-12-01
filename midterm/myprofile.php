@@ -3,6 +3,7 @@
     if(isset($_GET['id'])){
         $user= mysqli_fetch_assoc(mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_GET['id'])));
         $info = json_decode($user['info_json']);
+        $post_num = json_decode($user['posts_json']);
     }else{
         $q = mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_SESSION['user']['id']));
         if (mysqli_num_rows($q) == 0){
@@ -12,6 +13,7 @@
         $user = mysqli_fetch_assoc(mysqli_query($connections, "SELECT * FROM `users` WHERE `id`=".intval($_SESSION['user']['id'])));
     
         $info = json_decode($user['info_json']);
+        $post_num = json_decode($user['posts_json']); 
     } 
 ?>
 <html>
@@ -49,9 +51,9 @@
                     <div class="profile-stats">
         
                         <ul>
-                            <li><span class="profile-stat-count">10</span> posts</li>
-                            <li><span class="profile-stat-count">188</span> followers</li>
-                            <li><span class="profile-stat-count">206</span> following</li>
+                            <li><span class="profile-stat-count"><strong><?php echo(count($post_num))?></strong></span> posts</li>
+                            <li><span class="profile-stat-count"><strong><?php echo(count($info->followers))?></strong></span> followers</li>
+                            <li><span class="profile-stat-count"><strong><?php echo(count($info->followings))?></strong></span> following</li>
                         </ul>
         
                     </div>
